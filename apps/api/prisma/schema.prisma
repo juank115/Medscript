@@ -1,0 +1,87 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  DOCTOR
+  PATIENT
+}
+
+enum PrescriptionStatus {
+  PENDING
+  CONSUMED
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      Role
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  doctor  Doctor?
+  patient Patient?
+}
+
+model Doctor {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  specialty     String?
+  licenseNumber String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  prescriptions Prescription[]
+}
+
+model Patient {
+  id          String    @id @default(cuid())
+  userId      String    @unique
+  dateOfBirth DateTime?
+  phone       String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  prescriptions Prescription[]
+}
+
+model Prescription {
+  id        String             @id @default(cuid())
+  code      String             @unique
+  notes     String?
+  status    PrescriptionStatus @default(PENDING)
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+
+  authorId  String
+  patientId String
+
+  author  Doctor             @relation(fields: [authorId], references: [id])
+  patient Patient            @relation(fields: [patientId], references: [id])
+  items   PrescriptionItem[]
+
+  @@index([status, createdAt])
+  @@index([patientId])
+  @@index([authorId])
+}
+
+model PrescriptionItem {
+  id             String  @id @default(cuid())
+  name           String
+  dosage         String?
+  quantity       String?
+  instructions   String?
+  prescriptionId String
+
+  prescription Prescription @relation(fields: [prescriptionId], references: [id], onDelete: Cascade)
+}
