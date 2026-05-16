@@ -15,7 +15,7 @@
 | Rol | Email | Password |
 |---|---|---|
 | Admin | admin@test.com | admin123 |
-| Médico | dr@test.com | dr123 |
+| Médico | dr@test.com | dr1234 |
 | Paciente | patient@test.com | patient123 |
 
 ## Setup local (< 15 minutos)

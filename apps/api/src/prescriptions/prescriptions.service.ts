@@ -74,7 +74,7 @@ export class PrescriptionsService {
     });
     if (!prescription) throw new NotFoundException('Prescription not found');
 
-    this.assertAccess(prescription, currentUser);
+    await this.assertAccess(prescription, currentUser);
     return prescription;
   }
 
@@ -116,24 +116,37 @@ export class PrescriptionsService {
     });
     if (!prescription) throw new NotFoundException('Prescription not found');
 
-    this.assertAccess(prescription, currentUser);
+    await this.assertAccess(prescription, currentUser);
     return prescription;
   }
 
-  private assertAccess(
+  private async assertAccess(
     prescription: { authorId: string; patientId: string },
     currentUser: User,
   ) {
     if (currentUser.role === Role.ADMIN) return;
 
     if (currentUser.role === Role.DOCTOR) {
-      // Doctor must be the author — checked via doctor profile
+      const doctor = await this.prisma.doctor.findUnique({
+        where: { userId: currentUser.id },
+      });
+      if (!doctor || prescription.authorId !== doctor.id) {
+        throw new ForbiddenException('Access denied');
+      }
       return;
     }
 
     if (currentUser.role === Role.PATIENT) {
+      const patient = await this.prisma.patient.findUnique({
+        where: { userId: currentUser.id },
+      });
+      if (!patient || prescription.patientId !== patient.id) {
+        throw new ForbiddenException('Access denied');
+      }
       return;
     }
+
+    throw new ForbiddenException('Access denied');
   }
 
   // Full ownership check used in findOne
@@ -163,8 +176,8 @@ export class PrescriptionsService {
   }
 
   private async paginatedQuery(query: QueryPrescriptionsDto) {
-    const page = parseInt(query.page || '1', 10);
-    const limit = parseInt(query.limit || '10', 10);
+    const page = Math.max(parseInt(query.page || '1', 10), 1);
+    const limit = Math.min(Math.max(parseInt(query.limit || '10', 10), 1), 100);
     const skip = (page - 1) * limit;
     const order = query.order || 'desc';
 

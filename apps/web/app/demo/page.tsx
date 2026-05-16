@@ -40,13 +40,14 @@ export default function DemoPage() {
     setSelected(role);
     const user = DEMO_USERS[role];
     setAuth({ user, accessToken: 'demo-token', refreshToken: 'demo-refresh' });
-    document.cookie = `auth-role=${role}; path=/; max-age=${7 * 24 * 3600}`;
+    const secure = location.protocol === 'https:' ? '; Secure' : '';
+    document.cookie = `auth-role=${role}; path=/; max-age=${7 * 24 * 3600}; SameSite=Lax${secure}`;
     setTimeout(() => router.push(ROUTES[role]), 300);
   };
 
   useEffect(() => {
     // Clear any existing session to start fresh
-    document.cookie = 'auth-role=; path=/; max-age=0';
+    document.cookie = 'auth-role=; path=/; max-age=0; SameSite=Lax';
   }, []);
 
   return (

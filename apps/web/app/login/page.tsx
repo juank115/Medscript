@@ -9,7 +9,7 @@ import { useAuthStore } from '@/store/auth-store';
 
 const schema = z.object({
   email: z.string().email('Email inválido'),
-  password: z.string().min(4, 'Mínimo 4 caracteres'),
+  password: z.string().min(6, 'Mínimo 6 caracteres'),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -43,7 +43,8 @@ export default function LoginPage() {
       const { accessToken, refreshToken, user } = json.data ?? json;
 
       setAuth({ user, accessToken, refreshToken });
-      document.cookie = `auth-role=${user.role}; path=/; max-age=${7 * 24 * 3600}`;
+      const secure = location.protocol === 'https:' ? '; Secure' : '';
+      document.cookie = `auth-role=${user.role}; path=/; max-age=${7 * 24 * 3600}; SameSite=Lax${secure}`;
 
       toast.success(`Bienvenido, ${user.name}`);
 
@@ -175,7 +176,7 @@ export default function LoginPage() {
           <div className="space-y-1.5">
             {[
               { rol: 'Admin', email: 'admin@test.com', pass: 'admin123' },
-              { rol: 'Médico', email: 'dr@test.com', pass: 'dr123' },
+              { rol: 'Médico', email: 'dr@test.com', pass: 'dr1234' },
               { rol: 'Paciente', email: 'patient@test.com', pass: 'patient123' },
             ].map(({ rol, email, pass }) => (
               <div key={rol} className="flex items-center justify-between">

@@ -105,7 +105,7 @@ Todas las respuestas están envueltas en `{ data: ... }` por el `TransformInterc
 | Rol | Email | Password |
 |---|---|---|
 | Admin | admin@test.com | admin123 |
-| Médico | dr@test.com | dr123 |
+| Médico | dr@test.com | dr1234 |
 | Paciente | patient@test.com | patient123 |
 
 El seed también crea `dr2@test.com` y `patient2@test.com` con las mismas contraseñas para tener datos más ricos.

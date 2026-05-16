@@ -14,6 +14,8 @@ async function bootstrap() {
   app.enableCors({
     origin: process.env.APP_ORIGIN || 'http://localhost:3000',
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
   // Global pipes, filters, interceptors
@@ -27,19 +29,23 @@ async function bootstrap() {
   app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalInterceptors(new TransformInterceptor());
 
-  // Swagger
-  const config = new DocumentBuilder()
-    .setTitle('Plataforma Médica API')
-    .setDescription('API para gestión de prescripciones médicas')
-    .setVersion('1.0')
-    .addBearerAuth()
-    .build();
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('docs', app, document);
+  // Swagger — disabled in production to avoid exposing API surface
+  if (process.env.NODE_ENV !== 'production') {
+    const config = new DocumentBuilder()
+      .setTitle('Plataforma Médica API')
+      .setDescription('API para gestión de prescripciones médicas')
+      .setVersion('1.0')
+      .addBearerAuth()
+      .build();
+    const document = SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup('docs', app, document);
+  }
 
   const port = process.env.PORT || 3001;
   await app.listen(port);
   console.log(`API running on http://localhost:${port}`);
-  console.log(`Swagger docs at http://localhost:${port}/docs`);
+  if (process.env.NODE_ENV !== 'production') {
+    console.log(`Swagger docs at http://localhost:${port}/docs`);
+  }
 }
 bootstrap();

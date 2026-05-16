@@ -16,7 +16,7 @@ async function main() {
 
   const [adminPwd, drPwd, patientPwd] = await Promise.all([
     argon2.hash('admin123'),
-    argon2.hash('dr123'),
+    argon2.hash('dr1234'),
     argon2.hash('patient123'),
   ]);
 
@@ -177,7 +177,7 @@ async function main() {
 
   console.log('✅ Seed completed!');
   console.log('   admin@test.com  / admin123');
-  console.log('   dr@test.com     / dr123');
+  console.log('   dr@test.com     / dr1234');
   console.log('   patient@test.com / patient123');
 }
 
